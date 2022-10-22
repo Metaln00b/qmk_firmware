@@ -105,9 +105,31 @@ enum anne_pro_layers {
 };
 // clang-format on
 
+void ap2_boot_animation(void) {
+    unsigned int delay_ms = 400;
+    const ap2_led_t on_color = {.p.red = 0xff, .p.green = 0x00, .p.blue = 0x00, .p.alpha = 0xff};
+    const ap2_led_t off_color = {.p.red = 0x00, .p.green = 0x00, .p.blue = 0x00, .p.alpha = 0xff};
+
+    wait_ms(delay_ms);
+    ap2_led_mask_set_mono(off_color);
+    ap2_led_mask_set_key(1, 1, on_color);
+    wait_ms(delay_ms);
+    ap2_led_mask_set_key(1, 1, off_color);
+
+    ap2_led_mask_set_key(3, 8, on_color);
+    wait_ms(delay_ms);
+    ap2_led_mask_set_key(3, 8, off_color);
+
+    ap2_led_mask_set_key(2, 8, on_color);
+    wait_ms(delay_ms);
+    ap2_led_mask_set_key(2, 8, off_color);
+}
+
 void keyboard_post_init_user(void) {
     ap2_led_enable();
-    ap2_led_set_profile(7);
+    ap2_boot_animation();
+    //ap2_led_set_profile(7); // Comment out RGB_MATRIX_ENABLE = yes RGB_MATRIX_DRIVER = custom https://github.com/qmk/qmk_firmware/issues/17170
+    ap2_led_reset_foreground_color();
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
