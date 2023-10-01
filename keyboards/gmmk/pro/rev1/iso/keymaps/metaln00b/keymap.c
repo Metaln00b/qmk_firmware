@@ -15,14 +15,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include QMK_KEYBOARD_H
+#include "rgb_matrix_map.h"
 
 enum custom_keycodes {
     KC_MJT,
 };
 
 unsigned int led_delay_ms = 400;
-const ap2_led_t on_color = {.p.red = 0xff, .p.green = 0x00, .p.blue = 0x00, .p.alpha = 0xff};
-const ap2_led_t off_color = {.p.red = 0x00, .p.green = 0x00, .p.blue = 0x00, .p.alpha = 0xff};
 
 bool mouse_jiggle_mode = false;
 bool mouse_jiggle_change_direction = false;
@@ -52,7 +51,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // Since this is, among other things, a "gaming" keyboard, a key combination to enable NKRO on the fly is provided for convenience.
     // Press Fn+N to toggle between 6KRO and NKRO. This setting is persisted to the EEPROM and thus persists between restarts.
     [0] = LAYOUT(
-        KC_ESC,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_PSCR,          KC_MUTE,
+        KC_ESC,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_PSCR,          KC_SEARCH,
         KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL,  KC_BSPC,          KC_DEL,
         KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC, KC_RBRC,                   KC_PGUP,
         KC_CAPS, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT, KC_NUHS, KC_ENT,           KC_PGDN,
@@ -92,27 +91,24 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 // clang-format on
 
-void ap2_boot_animation(void) {
+void boot_animation(void) {
     wait_ms(led_delay_ms);
-    ap2_led_mask_set_mono(off_color);
-    ap2_led_mask_set_key(1, 1, on_color);
+    rgb_matrix_set_color_all(RGB_OFF);
+    rgb_matrix_set_color(LED_Q, RGB_RED);
     wait_ms(led_delay_ms);
-    ap2_led_mask_set_key(1, 1, off_color);
+    rgb_matrix_set_color(LED_Q, RGB_OFF);
 
-    ap2_led_mask_set_key(3, 8, on_color);
+    rgb_matrix_set_color(LED_M, RGB_RED);
     wait_ms(led_delay_ms);
-    ap2_led_mask_set_key(3, 8, off_color);
+    rgb_matrix_set_color(LED_M, RGB_OFF);
 
-    ap2_led_mask_set_key(2, 8, on_color);
+    rgb_matrix_set_color(LED_K, RGB_RED);
     wait_ms(led_delay_ms);
-    ap2_led_mask_set_key(2, 8, off_color);
+    rgb_matrix_set_color(LED_K, RGB_OFF);
 }
 
 void keyboard_post_init_user(void) {
-    ap2_led_enable();
-    ap2_boot_animation();
-    //ap2_led_set_profile(7); // Comment out RGB_MATRIX_ENABLE = yes RGB_MATRIX_DRIVER = custom https://github.com/qmk/qmk_firmware/issues/17170
-    ap2_led_reset_foreground_color();
+    boot_animation();
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -122,22 +118,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 if (mouse_jiggle_mode) {
                     mouse_jiggle_mode = false;
 
-                    ap2_led_mask_set_key(3, 8, on_color);
+                    rgb_matrix_set_color(LED_M, RGB_RED);
                     wait_ms(led_delay_ms);
-                    ap2_led_mask_set_key(3, 8, off_color);
+                    rgb_matrix_set_color(LED_M, RGB_OFF);
                     wait_ms(led_delay_ms);
-                    ap2_led_mask_set_key(3, 8, on_color);
+                    rgb_matrix_set_color(LED_M, RGB_RED);
                     wait_ms(led_delay_ms);
-                    ap2_led_mask_set_key(3, 8, off_color);
-                    ap2_led_reset_foreground_color();
+                    rgb_matrix_set_color(LED_M, RGB_OFF);
+                    rgb_matrix_set_color_all(RGB_OFF);
                 } else {
                     mouse_jiggle_mode = true;
                     mouse_jiggle_timer = timer_read();
 
-                    ap2_led_mask_set_key(3, 8, on_color);
+                    rgb_matrix_set_color(LED_M, RGB_RED);
                     wait_ms(led_delay_ms);
-                    ap2_led_mask_set_key(3, 8, off_color);
-                    ap2_led_reset_foreground_color();
+                    rgb_matrix_set_color(LED_M, RGB_OFF);
+                    rgb_matrix_set_color_all(RGB_OFF);
                 }
             }
             break;
@@ -162,7 +158,7 @@ void matrix_scan_user(void) {
 
 #if defined(ENCODER_MAP_ENABLE)
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
-    [0] = { ENCODER_CCW_CW(KC_VOLU, KC_VOLD) },
+    [0] = { ENCODER_CCW_CW(KC_FORWARD, KC_BACK) },
     [1] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS) },
     [2] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS) },
     [3] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS) }
