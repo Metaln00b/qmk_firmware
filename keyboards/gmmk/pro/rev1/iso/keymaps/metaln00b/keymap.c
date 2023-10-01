@@ -91,26 +91,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 // clang-format on
 
-void boot_animation(void) {
-    wait_ms(led_delay_ms);
-    rgb_matrix_set_color_all(RGB_OFF);
-    rgb_matrix_set_color(LED_Q, RGB_RED);
-    wait_ms(led_delay_ms);
-    rgb_matrix_set_color(LED_Q, RGB_OFF);
-
-    rgb_matrix_set_color(LED_M, RGB_RED);
-    wait_ms(led_delay_ms);
-    rgb_matrix_set_color(LED_M, RGB_OFF);
-
-    rgb_matrix_set_color(LED_K, RGB_RED);
-    wait_ms(led_delay_ms);
-    rgb_matrix_set_color(LED_K, RGB_OFF);
-}
-
-void keyboard_post_init_user(void) {
-    boot_animation();
-}
-
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case KC_MJT:
@@ -118,22 +98,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 if (mouse_jiggle_mode) {
                     mouse_jiggle_mode = false;
 
-                    rgb_matrix_set_color(LED_M, RGB_RED);
-                    wait_ms(led_delay_ms);
-                    rgb_matrix_set_color(LED_M, RGB_OFF);
-                    wait_ms(led_delay_ms);
-                    rgb_matrix_set_color(LED_M, RGB_RED);
-                    wait_ms(led_delay_ms);
-                    rgb_matrix_set_color(LED_M, RGB_OFF);
-                    rgb_matrix_set_color_all(RGB_OFF);
                 } else {
                     mouse_jiggle_mode = true;
                     mouse_jiggle_timer = timer_read();
-
-                    rgb_matrix_set_color(LED_M, RGB_RED);
-                    wait_ms(led_delay_ms);
-                    rgb_matrix_set_color(LED_M, RGB_OFF);
-                    rgb_matrix_set_color_all(RGB_OFF);
                 }
             }
             break;
@@ -163,4 +130,42 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [2] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS) },
     [3] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS) }
 };
+#endif
+
+#ifdef RGB_MATRIX_ENABLE
+    // Capslock, Scroll lock and Numlock  indicator on Left side lights.
+    bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+        led_t led_state = host_keyboard_led_state();
+
+        if (led_state.scroll_lock) {
+            rgb_matrix_set_color(LED_L1, RGB_GREEN);
+            rgb_matrix_set_color(LED_L2, RGB_GREEN);
+        }
+
+        #ifdef INVERT_NUMLOCK_INDICATOR
+            if (!led_state.num_lock) {   // on if NUM lock is OFF
+                rgb_matrix_set_color(LED_L3, RGB_MAGENTA);
+                rgb_matrix_set_color(LED_L4, RGB_MAGENTA);
+            }
+        #else
+            if (led_state.num_lock) {   // Normal, on if NUM lock is ON
+                rgb_matrix_set_color(LED_L3, RGB_MAGENTA);
+                rgb_matrix_set_color(LED_L4, RGB_MAGENTA);
+            }
+        #endif // INVERT_NUMLOCK_INDICATOR
+
+        if (led_state.caps_lock) {
+            rgb_matrix_set_color(LED_L5, RGB_RED);
+            rgb_matrix_set_color(LED_L6, RGB_RED);
+            rgb_matrix_set_color(LED_L7, RGB_RED);
+        }
+        if (keymap_config.no_gui) {
+            rgb_matrix_set_color(LED_LWIN, RGB_RED);  //light up Win key when disabled
+        }
+
+        if (mouse_jiggle_mode) {
+            rgb_matrix_set_color(LED_R1, RGB_GREEN);
+        }
+    return false;
+    }
 #endif
