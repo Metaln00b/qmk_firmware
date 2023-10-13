@@ -25,7 +25,7 @@
     enum led_location_map {
         LED_ESC, // 0, ESC, k13
         LED_GRV, // 1, `, k16
-        LEB_TAB, // 2, Tab, k11
+        LED_TAB, // 2, Tab, k11
         LED_CAPS, // 3, Caps, k21
         LED_LSFT, // 4, Sh_L, k00
         LED_LCTL, // 5, Ct_L, k06

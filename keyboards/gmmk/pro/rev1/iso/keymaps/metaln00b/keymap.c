@@ -158,6 +158,11 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
             rgb_matrix_set_color(LED_L5, RGB_RED);
             rgb_matrix_set_color(LED_L6, RGB_RED);
             rgb_matrix_set_color(LED_L7, RGB_RED);
+
+            rgb_matrix_set_color(LED_TAB, RGB_RED);
+            rgb_matrix_set_color(LED_CAPS, RGB_RED);
+            rgb_matrix_set_color(LED_A, RGB_RED);
+            rgb_matrix_set_color(LED_LSFT, RGB_RED);
         }
         if (keymap_config.no_gui) {
             rgb_matrix_set_color(LED_LWIN, RGB_RED);  //light up Win key when disabled
@@ -165,6 +170,17 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 
         if (mouse_jiggle_mode) {
             rgb_matrix_set_color(LED_R1, RGB_GREEN);
+        }
+
+        switch(get_highest_layer(layer_state)) {
+            case 1:
+                rgb_matrix_set_color(LED_FN, RGB_RED);
+
+                rgb_matrix_set_color(LED_END, RGB_RED);
+                rgb_matrix_set_color(LED_M, RGB_RED);
+                break;
+            default:
+                break;
         }
     return false;
     }
